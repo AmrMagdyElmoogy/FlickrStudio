@@ -3,36 +3,62 @@ package com.example.flickrstudio.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import com.example.flickrstudio.api.FlickrApi
 import com.example.flickrstudio.api.GalleryItem
 import com.example.flickrstudio.api.RetrofitApi
+import com.example.flickrstudio.repo.PreferencesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
 
 const val TAG = "PhotoGalleryViewModel"
 
 class FlickrViewModel : ViewModel() {
-
-
-    private val _items = MutableStateFlow<List<GalleryItem>>(emptyList())
-
-    val items: StateFlow<List<GalleryItem>>
-        get() = _items.asStateFlow()
+    private val _uiState = MutableStateFlow(PhotoGalleryUiState())
+    private val repo: PreferencesRepository = PreferencesRepository.get()
+    val uiState: StateFlow<PhotoGalleryUiState>
+        get() = _uiState.asStateFlow()
     val api: FlickrApi = RetrofitApi.api
 
     init {
         viewModelScope.launch {
             try {
-                _items.value = api.fetchPhotos().photos.galleryItems
-                Log.d(TAG, "$_items")
+                repo.storedQuery.collectLatest {
+                    searchPhotos(it)
+                }
+
+                Log.d(TAG, "$_uiState")
             } catch (e: Exception) {
-                Log.d("Exception", e.toString())
+                Log.d("ExceptionHandling", e.toString())
             }
         }
     }
+
+    fun setQuery(query: String) {
+        viewModelScope.launch {
+            repo.setStoredQuery(query)
+        }
+    }
+
+    private fun searchPhotos(query: String) {
+        viewModelScope.launch {
+            val items = api.searchPhotos(query).photos.galleryItems
+            _uiState.update { oldState ->
+                oldState.copy(
+                    images = items,
+                    query = query
+                )
+            }
+        }
+    }
+
+    private suspend fun fetchAllPhotos(): List<GalleryItem> = api.fetchPhotos().photos.galleryItems
 }
+
+data class PhotoGalleryUiState(
+    val images: List<GalleryItem> = listOf(),
+    val query: String = ""
+)
