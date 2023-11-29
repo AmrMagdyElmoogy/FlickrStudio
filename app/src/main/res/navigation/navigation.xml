@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/flickrGalleryFragment">
+
+    <fragment
+        android:id="@+id/flickrGalleryFragment"
+        android:name="com.example.flickrstudio.view.FlickrGalleryFragment"
+        android:label="FlickrGalleryFragment"
+        tools:layout="@layout/fragment_flickr_gallery">
+        <action
+            android:id="@+id/goToQueryFragment"
+            app:destination="@id/queryListFragment"
+            app:enterAnim="@android:anim/slide_out_right"
+            app:exitAnim="@android:anim/fade_out" />
+        <argument
+            android:name="query"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/queryListFragment"
+        android:name="com.example.flickrstudio.view.QueryListFragment"
+        android:label="QueryListFragment"
+        tools:layout="@layout/fragment_list_queries">
+        <action
+            android:id="@+id/BackToImagesFragment"
+            app:destination="@id/flickrGalleryFragment" />
+    </fragment>
+</navigation>

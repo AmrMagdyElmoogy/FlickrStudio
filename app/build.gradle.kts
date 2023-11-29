@@ -3,8 +3,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     id("com.google.devtools.ksp")
+    id("androidx.navigation.safeargs.kotlin")
 }
-
 android {
     namespace = "com.example.flickrstudio"
     compileSdk = 34
@@ -42,12 +42,16 @@ android {
 }
 
 dependencies {
+    val nav_version = "2.7.5"
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
+    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
+    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.squareup.moshi:moshi:1.13.0")
+    implementation ("androidx.work:work-runtime-ktx:2.7.1")
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.13.0")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
 //    implementation("com.google.devtools.ksp:symbol-processing-api:1.9.20-1.0.14")
@@ -62,6 +66,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation(libs.constraintlayout)
     implementation("io.coil-kt:coil:2.0.0-rc02")
+
     implementation("androidx.paging:paging-runtime:3.0.0")
 
     testImplementation(libs.junit)

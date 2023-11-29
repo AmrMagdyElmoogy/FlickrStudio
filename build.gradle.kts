@@ -7,7 +7,9 @@ plugins {
 }
 buildscript {
     dependencies {
+        val nav_version = "2.7.5"
         classpath(kotlin("gradle-plugin", version = "1.9.20"))
+        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version")
     }
 }
 true // Needed to make the Suppress annotation work for the plugins block
