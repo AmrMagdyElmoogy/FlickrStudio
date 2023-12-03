@@ -33,6 +33,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.flickrstudio.R
 import com.example.flickrstudio.databinding.FragmentFlickrGalleryBinding
+import com.example.flickrstudio.util.VisibleFragment
 import com.example.flickrstudio.util.changeVisibility
 import com.example.flickrstudio.viewModel.FlickrViewModel
 import com.example.flickrstudio.viewModel.States
@@ -51,7 +52,7 @@ const val TAG_SUBMIT = "Submit query"
 const val POLLING_WORK = "PollWorkState"
 const val TAG_TEXTING = "texting"
 
-class FlickrGalleryFragment : Fragment() {
+class FlickrGalleryFragment : VisibleFragment() {
 
     private var _binding: FragmentFlickrGalleryBinding? = null
     private lateinit var recyclerView: RecyclerView

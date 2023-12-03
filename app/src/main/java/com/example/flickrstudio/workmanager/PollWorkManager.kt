@@ -1,14 +1,11 @@
 package com.example.flickrstudio.workmanager
 
-import android.Manifest
-import android.app.NotificationManager
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
-import android.content.pm.PackageManager
+import android.content.Intent
 import android.util.Log
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.flickrstudio.MainActivity
@@ -46,7 +43,10 @@ class PollWorkManager(
                 } else {
                     Log.d(TAG, "Got some new data: $newResultId")
                     prefRepo.setLastResultId(newResultId)
-                    notifiyUser()
+                    val notification = createNotification()
+//                    notifyUser()
+//                    context.sendBroadcast(Intent(ACTION_SHOW_NOTIFICATION), PRIVATE_PERM)
+                    showBackgroundNotification(0, notification)
                 }
             }
             Result.success()
@@ -56,7 +56,23 @@ class PollWorkManager(
         }
     }
 
-    private fun notifiyUser() {
+    private fun showBackgroundNotification(requestCode: Int, notification: Notification) {
+        val intent = Intent(ACTION_SHOW_NOTIFICATION).also {
+            it.putExtra(REQUEST_CODE, requestCode)
+            it.putExtra(NOTIFICATION, notification)
+        }
+        context.sendOrderedBroadcast(intent, PRIVATE_PERM)
+    }
+
+    companion object {
+        const val ACTION_SHOW_NOTIFICATION =
+            "com.example.flickrstudio.SHOW_NOTIFICATION"
+        const val PRIVATE_PERM = "com.example.flickrstudion.PRIVATE"
+        const val REQUEST_CODE = "REQUEST_CODE"
+        const val NOTIFICATION = "NOTIFICATION"
+    }
+
+    private fun createNotification(): Notification {
         val intent = MainActivity.newIntent(context)
         val pendingIntent = PendingIntent.getActivity(
             context,
@@ -64,7 +80,7 @@ class PollWorkManager(
             intent,
             PendingIntent.FLAG_IMMUTABLE
         )
-        val notification = NotificationCompat.Builder(
+        return NotificationCompat.Builder(
             context, NOTIFICATION_CHANNEL_ID
         ).setTicker(context.getString(R.string.new_pictures_title))
             .setSmallIcon(R.drawable.flickr)
@@ -73,22 +89,5 @@ class PollWorkManager(
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()
-
-
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
-        NotificationManagerCompat.from(context).notify(0, notification)
     }
 }
